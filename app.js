@@ -8,7 +8,7 @@ canvas.width = 900;
 canvas.height = 600;
 
 //global Constants
-const winningScore = 30;
+const winningScore = 30;//minimum score to complete level
 const cellSize = 100;
 const cellGap = 3;
 //gobal Variables
@@ -190,7 +190,7 @@ function handelDefenders() {
     defenders[i].draw();
     defenders[i].updat();
     
-    if (enemyPositions.indexOf(defenders[i].y-cellGap) !== -1)
+    if (enemyPositions.indexOf(defenders[i].y) !== -1)
       defenders[i].shooting = true;
     else
       defenders[i].shooting = false;
@@ -213,8 +213,8 @@ class Enemy {
   constructor(verticalPostion) {
     this.x = canvas.width; //enemy will spawn at the right edge of canvas
     this.y = verticalPostion;//y postion of spawn enemy
-    this.width = cellSize;//enemy is of one cell size
-    this.height = cellSize;
+    this.width = cellSize - cellGap * 2;//enemy is of one cell size
+    this.height = cellSize - cellGap * 2;
     this.speed = Math.random() * 0.2 + 1;//random speed of enemy
     this.movement = this.speed;//speed of changes after collision from defender
     this.health = 100;
@@ -252,8 +252,9 @@ function handleEnemies() {
     }
   }
   if (frame % enemyInterval === 0 && score < winningScore) {//enemy will spawn 
-    let verticalPostion = Math.floor(Math.random() * 5 + 1) * cellSize;
+    let verticalPostion = Math.floor(Math.random() * 5 + 1) * cellSize + cellGap;
     enemies.push(new Enemy(verticalPostion));
+    console.log("We got New Enemy");
     enemyPositions.push(verticalPostion);
     if (enemyInterval > 120) enemyInterval -= 50;//spawn interval will decrease linearly
   }
@@ -303,6 +304,13 @@ function handleGameStatus() {
     ctx.font = '60px Arial';
     ctx.fillText("Game Over",300,300);
   }
+  if (score > winningScore && enemies.length === 0) {
+    ctx.fillStyle = 'black';
+    ctx.font = '60px ariel';
+    ctx.fillText("Level Complete",135,300);
+    ctx.font = '30px ariel';
+    ctx.fillText(`You WIN with ${score} Points!`,134,340);
+  }
 }
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -325,4 +333,8 @@ animate();
 function collision(first, second) {
   if (!(first.x > second.x + second.width || first.x + first.width < second.x || first.y > second.y + second.height || first.y + first.height < second.y))
     return true;
-}
+};
+
+window.addEventListener('resize', function () {
+  canvasPosition = canvas.getBoundingClientRect();
+})
